@@ -27,12 +27,73 @@ df = pd.read_csv('sample_data.csv')
 df.head()
 ```
 
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x</th>
+      <th>y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.942870</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.121212</td>
+      <td>-2.261629</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.242424</td>
+      <td>3.100749</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.363636</td>
+      <td>-0.285446</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.484848</td>
+      <td>-1.012210</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
 Run the following line of code. You will notice that the data is clearly of non-linear shape. Begin to think about what degree polynomial you believe will fit it best.
 
 
 ```python
 plt.scatter(df['x'], df['y'], color='green', s=50, marker='.');
 ```
+
+
+![png](index_files/index_9_0.png)
+
 
 ## Train-test split
 
@@ -44,7 +105,7 @@ The next step is to split the data into training and test sets. Set the `random_
 from sklearn.model_selection import train_test_split
 y = df['y']
 X = df.drop(columns='y', axis=1)
-X_train, X_test, y_train, y_test = None
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.25, random_state=42)
 ```
 
 ## Build polynomial models
@@ -76,33 +137,43 @@ plt.scatter(df['x'], df['y'], color='green', s=50, marker='.', label='plot point
 for index, degree in enumerate([2, 3, 4]):
     
     # Instantiate PolynomialFeatures
-    poly = None
+    poly = PolynomialFeatures(degree)
     
     # Fit and transform X_train
-    X_poly_train = None
+    X_poly_train = poly.fit_transform(X_train)
     
     # Instantiate and fit a linear regression model to the polynomial transformed train features
-    reg_poly = None
+    regression = LinearRegression()
+    reg_poly = regression.fit(X_poly_train, y_train)
     
     # Transform the test data into polynomial features
-    X_poly_test = None
+    X_poly_test = poly.fit_transform(X_test)
     
     # Get predicted values for transformed polynomial test data  
-    y_pred = None
+    y_pred = reg_poly.predict(X_poly_test)
     
     # Evaluate model performance on test data
     print("degree %d" % degree, r2_score(y_test, y_pred))
     
     # Transform the full data
-    X_poly = None
+    X_poly = poly.fit_transform(X)
     
     # Now, we want to see what the model predicts for the entire data 
-    y_poly = None
+    y_poly = reg_poly.predict(X_poly)
     
     # Create plot of predicted values
     plt.plot(X, y_poly, color = colors[index], linewidth=2, label='degree %d' % degree)
     plt.legend(loc='lower left')
 ```
+
+    degree 2 -0.14450360246115057
+    degree 3 0.019316598557331033
+    degree 4 0.5138362771625364
+
+
+
+![png](index_files/index_14_1.png)
+
 
 ## Summary
 
